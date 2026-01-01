@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { socket } from "@/lib/socket";
 import { useEffect, useState } from "react";
 import DiceBearAvatar from "./DiceBearAvatar";
+import { useRoomIdStore } from "@/hooks/store/useRoomIdStore";
+import { useUsernameStore } from "@/hooks/store/useUsernameStore";
 
 const MessageForm = z.object({
   message: z.string().min(1),
@@ -19,14 +21,10 @@ type NewMessage = {
   message: string;
 };
 
-const GameChat = ({
-  roomId,
-  username,
-}: {
-  roomId: string;
-  username: string;
-}) => {
+const GameChat = () => {
   const [messages, setMessages] = useState<NewMessage[]>([]);
+  const { roomId } = useRoomIdStore();
+  const { username } = useUsernameStore();
 
   const form = useForm<MessageFormT>({
     resolver: zodResolver(MessageForm),

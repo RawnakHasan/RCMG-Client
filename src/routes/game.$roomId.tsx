@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Play, Power, X } from "lucide-react";
 
 import { useUsernameStore } from "@/hooks/store/useUsernameStore";
@@ -13,6 +13,7 @@ import GameBoard from "@/components/GameBoard";
 import GameChat from "@/components/GameChat";
 import { Button } from "@/components/ui/button";
 import PlayerList from "@/components/PlayerList";
+import { useGameStateStore } from "@/hooks/store/useGameStateStore";
 
 export const Route = createFileRoute("/game/$roomId")({
   component: RouteComponent,
@@ -22,8 +23,17 @@ function RouteComponent() {
   const { username } = useUsernameStore();
   const { roomId } = Route.useParams();
   const { setRoomId } = useRoomIdStore();
-
-  const [game, setGame] = useState<Game>();
+  const {
+    players,
+    setPlayers,
+    setDiscardPile,
+    gamePhase,
+    setGamePhase,
+    hostUsername,
+    setHostUsername,
+    setRotation,
+    resetGameState,
+  } = useGameStateStore();
 
   useEffect(() => {
     socket.emit("updateGame", { roomId });
@@ -31,7 +41,11 @@ function RouteComponent() {
     setRoomId(roomId);
 
     socket.on("gameUpdate", (game: Game) => {
-      setGame(game);
+      setPlayers(game.players);
+      setDiscardPile(game.discardPile);
+      setGamePhase(game.gamePhase);
+      setRotation(game.rotation);
+      setHostUsername(game.hostUsername);
 
       console.log(game);
     });
@@ -39,23 +53,34 @@ function RouteComponent() {
     return () => {
       setRoomId("");
     };
-  }, [roomId, setRoomId]);
+  }, [
+    roomId,
+    setRoomId,
+    setPlayers,
+    setDiscardPile,
+    setGamePhase,
+    setRotation,
+    setHostUsername,
+  ]);
 
-  if (!game) return null;
+  const handleGameEnd = () => {
+    socket.emit("endGame", { roomId });
+    resetGameState();
+  };
 
   return (
     <div className="h-full px-4 pb-4 flex gap-4">
       <div className="flex flex-col justify-between">
         <div className="top-0 border-2 min-w-48 h-fit rounded-lg">
-          <PlayerList game={game} />
+          <PlayerList players={players} />
         </div>
         <div className="flex justify-between gap-4">
           <Button size="icon" variant="destructive">
             <Power />
           </Button>
-          {game?.hostUsername === username && (
+          {hostUsername === username && (
             <>
-              {game?.gamePhase === "waiting" && (
+              {gamePhase === "waiting" && (
                 <Button
                   onClick={() => socket.emit("startGame", { roomId })}
                   size="icon"
@@ -64,9 +89,9 @@ function RouteComponent() {
                   <Play />
                 </Button>
               )}
-              {game?.gamePhase === "playing" && (
+              {gamePhase === "playing" && (
                 <Button
-                  onClick={() => socket.emit("endGame", { roomId })}
+                  onClick={handleGameEnd}
                   size="icon"
                   variant="destructive"
                 >
@@ -77,8 +102,8 @@ function RouteComponent() {
           )}
         </div>
       </div>
-      <GameBoard game={game} />
-      <GameChat roomId={roomId} username={username} />
+      <GameBoard />
+      <GameChat />
     </div>
   );
 }

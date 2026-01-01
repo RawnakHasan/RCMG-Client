@@ -1,3 +1,6 @@
+import { useRoomIdStore } from "@/hooks/store/useRoomIdStore";
+import { useUsernameStore } from "@/hooks/store/useUsernameStore";
+import { socket } from "@/lib/socket";
 import type { Card } from "@/types/card";
 
 type HandProps = {
@@ -9,11 +12,15 @@ type HandProps = {
 };
 
 const Hand = ({ card, index, isHovered, onHover, onLeave }: HandProps) => {
+  const { roomId } = useRoomIdStore();
+  const { username } = useUsernameStore();
+
   return (
     <div
+      onClick={() => socket.emit("playCard", { card, roomId, username })}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className="
+      className="isthistheplace
         relative
         -ml-16
         transition-all duration-200 ease-out

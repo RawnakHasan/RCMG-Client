@@ -1,27 +1,26 @@
-import type { Game } from "@/types/game.types";
 import { Spinner } from "./ui/spinner";
 import { useUsernameStore } from "@/hooks/store/useUsernameStore";
 import Hand from "./Hand";
 import { useState } from "react";
 import PlayBoard from "./PlayBoard";
+import { useGameStateStore } from "@/hooks/store/useGameStateStore";
 
-const GameBoard = ({ game }: { game: Game | undefined }) => {
+const GameBoard = () => {
   const { username } = useUsernameStore();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  if (!game) return null;
+  const { gamePhase, players } = useGameStateStore();
 
   return (
     <div className="h-full w-12/16 border-2 rounded-lg p-4 flex flex-col items-center gap-4 justify-between overflow-visible">
-      {game.gamePhase === "playing" && <PlayBoard />}
-      {game.gamePhase === "waiting" && (
+      {gamePhase === "playing" && <PlayBoard />}
+      {gamePhase === "waiting" && (
         <h1 className="h-full flex gap-2 items-center justify-center">
           <Spinner /> Waiting...
         </h1>
       )}
-      {game.gamePhase === "playing" && (
+      {gamePhase === "playing" && (
         <div className="relative flex items-end justify-center pl-16 overflow-visible">
-          {game.players
+          {players
             .find((player) => player.username === username)
             ?.hand.map((card, index) => (
               <Hand
@@ -35,7 +34,7 @@ const GameBoard = ({ game }: { game: Game | undefined }) => {
             ))}
         </div>
       )}
-      {game.gamePhase === "finished" && <div>Game Finished</div>}
+      {gamePhase === "finished" && <div>Game Finished</div>}
     </div>
   );
 };
