@@ -46,7 +46,7 @@ const PlayBoard = () => {
               className="absolute inset-0"
               style={{
                 transform: `rotate(${rotationFromCard(card)}deg)`,
-                zIndex: index + 1,
+                zIndex: discardPile.length - index,
               }}
               draggable={false}
             />
