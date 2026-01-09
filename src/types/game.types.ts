@@ -1,6 +1,8 @@
-import type { Card } from "./card";
+import type { Card } from "./card.ts";
 
 export type Player = {
+  uuid: string;
+  id: number;
   username: string;
   host: boolean;
   hand: Card[];
@@ -8,10 +10,12 @@ export type Player = {
 
 export type GamePhase = "waiting" | "playing" | "finished";
 
-export interface Game {
+export type Game = {
   players: Player[];
   discardPile: Card[];
   rotation: 1 | -1;
   gamePhase: GamePhase;
-  hostUsername: string;
-}
+  hostSocketId: string;
+  drawCount: number;
+  playerTurn: Player;
+};

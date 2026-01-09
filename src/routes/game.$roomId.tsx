@@ -29,9 +29,11 @@ function RouteComponent() {
     setDiscardPile,
     gamePhase,
     setGamePhase,
-    hostUsername,
-    setHostUsername,
+    hostSocketId,
+    setHostSocketId,
     setRotation,
+    setPlayerTurn,
+    setDrawCount,
     resetGameState,
   } = useGameStateStore();
 
@@ -45,7 +47,9 @@ function RouteComponent() {
       setDiscardPile(game.discardPile);
       setGamePhase(game.gamePhase);
       setRotation(game.rotation);
-      setHostUsername(game.hostUsername);
+      setHostSocketId(game.hostSocketId);
+      setPlayerTurn(game.playerTurn);
+      setDrawCount(game.drawCount);
 
       console.log(game);
     });
@@ -60,7 +64,9 @@ function RouteComponent() {
     setDiscardPile,
     setGamePhase,
     setRotation,
-    setHostUsername,
+    setHostSocketId,
+    setDrawCount,
+    setPlayerTurn,
   ]);
 
   const handleGameEnd = () => {
@@ -78,11 +84,11 @@ function RouteComponent() {
           <Button size="icon" variant="destructive">
             <Power />
           </Button>
-          {hostUsername === username && (
+          {hostSocketId === socket.id && (
             <>
               {gamePhase === "waiting" && (
                 <Button
-                  onClick={() => socket.emit("startGame", { roomId })}
+                  onClick={() => socket.emit("startGame", { roomId, username })}
                   size="icon"
                   className="bg-emerald-500 text-white hover:bg-emerald-500/90 focus-visible:ring-emerald-500/20 dark:focus-visible:ring-emerald-500/40 dark:bg-emerald-500/60"
                 >
